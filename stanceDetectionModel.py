@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 26 19:45:05 2019
-
-@author: Harsh Shah
-"""
-
 import pandas as pd
 import numpy as np
 import nltk
@@ -17,10 +10,6 @@ from nltk.corpus import stopwords
 data = pd.read_csv('Dataset\claim_stance_dataset_v1.csv')
 english_stop_words = stopwords.words('english')
 claim_corrected_data = data.iloc[:,7]
-
-
-
-
 
 class StanceDetectionModel(object):
    
@@ -39,6 +28,7 @@ class StanceDetectionModel(object):
         test = pd.DataFrame(test)   
         return train,test
     
+      
     def remove_stop_words(self,corpus):
         removed_stop_words = []
         for evidence in corpus:
@@ -47,6 +37,7 @@ class StanceDetectionModel(object):
                           if word not in english_stop_words])
             )
         return removed_stop_words
+   
    
     def get_stemmed_text(self,corpus):
         from nltk.stem.porter import PorterStemmer
@@ -59,6 +50,7 @@ class StanceDetectionModel(object):
         lemmatizer = WordNetLemmatizer()
         return [' '.join([lemmatizer.lemmatize(word) for word in evidence.split()]) for evidence in corpus]  
 
+   
     def _tfidf_features(self,evidence):
         avg_tfidf_feature = 0
         max_tfidf_feature = 0
@@ -71,6 +63,7 @@ class StanceDetectionModel(object):
         max_tfidf_feature = np.max(tfidf_vector.toarray())
         return avg_tfidf_feature, max_tfidf_feature
     
+   
     def _vadersentiment_analysis(self,evidence):
         analyser = SentimentIntensityAnalyzer()
         score = analyser.polarity_scores(evidence)
@@ -80,12 +73,14 @@ class StanceDetectionModel(object):
             stance = -1 
         return  stance
     
+      
     # sentiment analyzer scores 
     def _sentiment_analyzer_scores(self,evidence):
         analyser = SentimentIntensityAnalyzer()
         score = analyser.polarity_scores(evidence)
         return  score['neg'],score['neu'],score['pos']
 
+   
     # sentiment analyzer for bag of words of negative/ positive/ nuetral
     def _sentiment_analyzer_noOfWords(self,evidence):
         analyser = SentimentIntensityAnalyzer()
@@ -104,12 +99,10 @@ class StanceDetectionModel(object):
 
 
     def feature_representation(self,evidence):
-            
-            
         # Avg. Max. tfidf
         avg_tfidf_feature, max_tfidf_feature =self._tfidf_features(evidence)
         
-            # positive score, nuetral score,  negative score, compound score
+        # positive score, nuetral score,  negative score, compound score
         negative_score,neutral_score,positive_score = self._sentiment_analyzer_scores(evidence)
         
         # Number of postive/negative/neutral words
